@@ -1,0 +1,38 @@
+# What this repository publishes: the world's land cover — ESA WorldCover 2021 v200, every square of
+# 10 m from 60°S to 84°N in one of eleven classes, from Sentinel-1 and Sentinel-2 — as tile archives,
+# `map/land/worldcover/index.json` beside `map/land/worldcover/<version>/overview.pmtiles` and one
+# `cells/5-<x>-<y>.pmtiles` for each zoom-5 cell the land touches, and a root naming its version. The
+# fetcher is the site's `scripts/fetch-worldcover.py` (on `scripts/tile_archive.py`), whose docstring
+# carries the measurements.
+#
+# **To the second host alone** (`r2_only`, the site pipeline's D13, its note of 2026-10-09): every
+# file of this product is published to Cloudflare R2 and not to Pages, which carries the status
+# alone. The root stays on the `published` branch; **the cells' archives are sent to R2 by the
+# workflow's matrix jobs themselves**, and the tree the run carries (`trees`) is the index and the
+# overview alone, from run to run by this repository's cache, never committed.
+#
+# **Final, built once**: ESA's 2021 map, unchanged since 2022. The step looks at its files every 30
+# days (`every_hours`), and is made due when the cache missed or the matrix built; the workflow's
+# plan reads ESA's listing each day. No budget: an old `refTime` is the source's own date, not a fault.
+
+[contract]
+check = ["node", "scripts/test-schema.mjs"]
+roots = ["node", "scripts/test-schema.mjs", "--roots"]
+
+[defaults]
+timeout_minutes = 20
+
+[steps.worldcover]
+cmd = ["python3", "scripts/fetch-worldcover.py", "--only=worldcover"]
+lane = "esa-worldcover.s3.eu-central-1.amazonaws.com"
+timeout_minutes = 60
+every_hours = 720
+
+[products.worldcover]
+title = "Land cover: ESA WorldCover 2021 v200, the world's land at 10 m in eleven classes, as tile archives (ESA)"
+step = "worldcover"
+roots = ["worldcover.json"]
+writes = ["worldcover.json"]
+trees = ["land/worldcover"]
+namespace = ["python3", "scripts/fetch-worldcover.py", "--namespace", "--only=worldcover"]
+r2_only = true
