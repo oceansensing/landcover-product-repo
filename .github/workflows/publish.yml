@@ -207,6 +207,8 @@ jobs:
           PIPELINE_DUE_NOW: ${{ (needs.plan-worldcover.outputs.build == 'true' || steps.worldcover-tree.outputs.cache-hit != 'true') && 'worldcover' || '' }}
         run: python3 site/pipeline/orchestrate.py run
       # A set this run built is saved under its own version, for the next run to restore.
+      # And so is a set its restore missed: else every run after the cache was evicted would miss it
+      # again and build it again.
       - name: Name the set on the stage
         id: sets
         if: always()
@@ -214,7 +216,7 @@ jobs:
           v=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('version') or 'none')" site/public/map/land/worldcover/index.json 2>/dev/null || echo none)
           echo "worldcover=$v" >> "$GITHUB_OUTPUT"
       - name: Save the set's index and overview
-        if: steps.run.outputs.deploy == 'true' && steps.sets.outputs.worldcover != 'none' && steps.sets.outputs.worldcover != needs.plan-worldcover.outputs.published
+        if: steps.run.outputs.deploy == 'true' && steps.sets.outputs.worldcover != 'none' && (steps.sets.outputs.worldcover != needs.plan-worldcover.outputs.published || steps.worldcover-tree.outputs.cache-hit != 'true')
         uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: site/public/map/land/worldcover

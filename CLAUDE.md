@@ -148,7 +148,7 @@ fact from a guess that aged.
 
 - **R2 alone** (`r2_only`): the origin is in the site's `MAP_ORIGINS`, so its status is published to Pages, where the watchdog reads it.
 - **The cells' archives are sent by the matrix jobs, never by the R2 publish**: each job sends its cells' archives into `map/land/worldcover/<version>/cells/` itself (`publish_r2.py`'s `send_archives`: one request a file, its ETag its MD5), and the R2 publish **lands the index only once every archive it names is there with that MD5** (`archives_named`), and keeps them as a land tree's live version is kept. A job cut short is resumed: the plan asks R2 which cells it holds and builds only the groups still missing one.
-- **The tree is the index and the overview alone**, carried by the cache under the version the root names; a tree once published is never published absent (the orchestrator's `guard_trees`).
+- **The tree is the index and the overview alone**, carried by the cache under the version the root names (saved again when its restore missed, or every run after an eviction would build it again); a tree once published is never published absent (the orchestrator's `guard_trees`).
 - **The guard**: a set whose tiles fall more than 10% below the last publish's is refused, for a person to look first.
 - **Every file is the site's to write**: the fetcher and its controls are the site's; nothing here runs code of its own.
 
