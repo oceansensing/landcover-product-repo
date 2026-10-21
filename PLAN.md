@@ -1,7 +1,8 @@
 # landcover-product-repo: the founding plan and running record
 
 The world's **land cover**, as tile archives. Created on GitHub by the owner and given its documents by the site's
-`pipeline/scaffold/new-origin.py`. **Nothing is published yet.**
+`pipeline/scaffold/new-origin.py`. **Published since 2026-10-21** (below); daily at 09:41 UTC since then, and an
+unchanged source builds and sends nothing.
 
 ## What it is for
 
@@ -13,6 +14,13 @@ One product, R2's alone: **`worldcover`** (`worldcover.json`, `map/land/worldcov
 
 ## Open
 
-1. The first dispatched run, read: the plan, the matrix's groups and their times, the build reading every cell back, the index landing on R2.
-2. Then the daily schedule.
-3. Copernicus's LCFM years, as they are released: a set a year, the same archives.
+1. Copernicus's LCFM years, as they are released: a set a year, the same archives.
+
+## Record
+
+- **2026-10-21, the first run** ([39526857129](https://github.com/oceansensing/landcover-product-repo/actions/runs/39526857129),
+  dispatched 2026-10-21 01:21 UTC, green 04:09): the plan read version `d124dbe572b2`; 32 groups, eight at a time,
+  26–50 minutes each, every group building the cells it planned — 453 cells with land sent to R2 as they were
+  built, 54 of the sea alone recorded and skipped, the largest `5-18-17` at 1.87 GB; the build read the 960 cell
+  files back and wrote the index: 453 cells, 84,462,248 tiles, 167.4 GB; the R2 publish landed the index only once
+  every archive it names was there with its MD5. The daily schedule turned on the same morning.
