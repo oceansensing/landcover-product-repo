@@ -1,0 +1,38 @@
+{
+ "schema": 2,
+ "contract": 1,
+ "generated": "2026-10-31T09:44:21Z",
+ "mode": "full",
+ "run": {
+  "id": "41189829370",
+  "url": "https://github.com/oceansensing/landcover-product-repo/actions/runs/41189829370"
+ },
+ "schedule": {
+  "crons": [
+   "41 9 * * *"
+  ],
+  "longestGapHours": 24.0
+ },
+ "products": {
+  "worldcover": {
+   "title": "Land cover: ESA WorldCover 2021 v200, the world's land at 10 m in eleven classes, as tile archives (ESA)",
+   "roots": [
+    "worldcover.json"
+   ],
+   "fate": "carried",
+   "reason": "not due: checked 245.6 h ago, runs every 720 h",
+   "checked": "2026-10-21T04:08:44Z",
+   "updated": "2026-10-21T04:08:44Z",
+   "hour": "2022-10-26T13:06:19Z",
+   "modelRun": null,
+   "source": "ESA WorldCover 10 m 2021 v200 (Sentinel-1 and Sentinel-2, 11 classes)",
+   "hours": [
+    "2022-10-26T13:06:19Z"
+   ],
+   "stale": false,
+   "staleCause": null,
+   "ageHours": 35180.63,
+   "nearestOffsetHours": 35180.63
+  }
+ }
+}
