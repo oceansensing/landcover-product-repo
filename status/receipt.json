@@ -1,0 +1,17 @@
+{
+ "schema": 1,
+ "generated": "2026-11-14T09:43:58Z",
+ "mode": "full",
+ "fates": {
+  "worldcover": "carried"
+ },
+ "reasons": {
+  "worldcover": "not due: checked 581.6 h ago, runs every 720 h"
+ },
+ "built": {},
+ "withheld": {},
+ "deploy": true,
+ "notes": [],
+ "behind": [],
+ "tile_keys": {}
+}
