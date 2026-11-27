@@ -1,15 +1,6 @@
-# Publish this repository's products: fetch with the site's pipelines,
-# validate against the site's contract, and publish one build to GitHub Pages
-# and to Cloudflare R2. Written by the site's pipeline/scaffold/new-origin.py
-# from the sibling data repositories' workflow.
-#
-# **Dispatch-only until a dispatched run has published a tree**: prove the
-# pipeline, THEN uncomment the schedule below, in the same commit as the docs.
-# `status/status.json` reports `schedule: null` until then, and the site's
-# watchdog names an origin with no schedule on sight.
-#
-# Needs, from the owner: `PIPELINES_SSH_KEY` (this repository's read-only
-# deploy key on oceansensing.github.io) and the organization's R2_* secrets.
+# Publish this repository's data: built by the pipeline in
+# oceansensing/oceansensing.github.io, which keeps its documentation.
+# Secrets: PIPELINES_SSH_KEY, R2_ACCESS_KEY_ID, R2_ENDPOINT, R2_SECRET_ACCESS_KEY.
 
 name: Publish
 
@@ -30,11 +21,6 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # **WorldCover is built where it is big** (2026-10-20): ESA's 2,651 files tiled across a job matrix
-  # before the build — each job a group of zoom-5 cells, each cell's archive built from its files and
-  # sent to R2 by the job itself (about 160 GB in all: no runner holds the set) — and the build reads
-  # every cell's record and zoom-5 tile back, makes the overview and writes the index naming every
-  # archive. Nothing of the set is committed or carried by the cache but the index and the overview.
   plan-worldcover:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -66,9 +52,7 @@ jobs:
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
         with:
           python-version: '3.12'
-      # ESA's listing (its files' identity: the set's version) and R2's (the cells already sent, so a
-      # run cut short resumes with what is missing): whether to build, and which groups.
-      - name: Ask ESA what its files are, and R2 which cells it holds
+      - name: Ask ESA what its files are, and storage which cells it holds
         id: plan
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
@@ -78,8 +62,6 @@ jobs:
           AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
         run: python3 site/scripts/fetch-worldcover.py --plan --published published/map ${{ inputs.force && '--force' || '' }}
 
-  # One job a group (fetch-worldcover.py's GROUPS): the group's files downloaded as its cells need them,
-  # each cell built four at a time and sent — the archive, its zoom-5 tile, its record — then deleted.
   worldcover-part:
     needs: plan-worldcover
     if: needs.plan-worldcover.outputs.parts == 'true'
@@ -113,7 +95,7 @@ jobs:
           python-version: '3.12'
       - name: Install what the fetchers need
         run: pip install --no-cache-dir -r site/scripts/requirements-landcover.txt
-      - name: Build the group's cells and send each to R2
+      - name: Build the group's cells and send each to storage
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
@@ -133,8 +115,6 @@ jobs:
       deploy: ${{ steps.run.outputs.deploy }}
       behind: ${{ steps.run.outputs.behind }}
     steps:
-      # This repository first: actions/checkout cleans its destination, so
-      # taking the root after the others would wipe them.
       - name: Check out this repository
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Check out the pipelines
@@ -177,15 +157,13 @@ jobs:
         env:
           PIPELINE_ROOT: ${{ github.workspace }}
         run: python3 site/pipeline/orchestrate.py seed
-      # The set's index and overview as last published, from the cache, under the version its root names.
       - name: Restore the set's index and overview
         id: worldcover-tree
         uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: site/public/map/land/worldcover
           key: landcover-worldcover-${{ needs.plan-worldcover.outputs.published }}
-      # Every cell's record and zoom-5 tile, back from R2, when the set is built anew or the cache lost it.
-      - name: Read the cells' records back from R2
+      - name: Read the cells' records back from storage
         if: needs.plan-worldcover.outputs.build == 'true' || steps.worldcover-tree.outputs.cache-hit != 'true'
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
@@ -206,9 +184,6 @@ jobs:
           WORLDCOVER_CELLS: ${{ github.workspace }}/cells
           PIPELINE_DUE_NOW: ${{ (needs.plan-worldcover.outputs.build == 'true' || steps.worldcover-tree.outputs.cache-hit != 'true') && 'worldcover' || '' }}
         run: python3 site/pipeline/orchestrate.py run
-      # A set this run built is saved under its own version, for the next run to restore.
-      # And so is a set its restore missed: else every run after the cache was evicted would miss it
-      # again and build it again.
       - name: Name the set on the stage
         id: sets
         if: always()
@@ -226,10 +201,7 @@ jobs:
         uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
         with:
           path: out
-      # What this origin publishes to R2 alone (the site pipeline's D13, its
-      # note of 2026-10-09), and R2's whole status: the R2 job lays it beside
-      # the site. Public for the day it is kept, so open data only.
-      - name: Hand on what R2 alone carries
+      - name: Upload the second tree
         if: steps.run.outputs.deploy == 'true'
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -275,8 +247,6 @@ jobs:
         if: needs.build.outputs.deploy == 'true'
         uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
 
-  # R2 stands on its own (the site's pipeline D12): beside the Pages deploy,
-  # not after it, and neither side's failure stops the other.
   publish-r2:
     needs: build
     if: ${{ !cancelled() && needs.build.result == 'success' && needs.build.outputs.deploy == 'true' }}
@@ -297,14 +267,14 @@ jobs:
         with:
           name: github-pages
           path: pages
-      - name: Download what R2 alone carries
+      - name: Download the second tree
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: r2-only
           path: r2-only
       - name: Test the publish script
         run: python3 code/pipeline/test_publish_r2.py
-      - name: Publish to R2
+      - name: Publish to storage
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
