@@ -1,0 +1,69 @@
+{
+ "product": "worldcover",
+ "header": {
+  "refTime": "2022-10-26T13:06:19Z",
+  "source": "ESA WorldCover 10 m 2021 v200 (Sentinel-1 and Sentinel-2, 11 classes)"
+ },
+ "index": "land/worldcover/index.json",
+ "version": "d124dbe572b2",
+ "generated": "2026-10-21T04:08:44Z",
+ "citation": "Zanaga, D., Van De Kerchove, R., Daems, D., De Keersmaecker, W., Brockmann, C., Kirches, G., Wevers, J., Cartus, O., Santoro, M., Fritz, S., Lesiv, M., Herold, M., Tsendbazar, N.E., Xu, P., Ramoino, F., Arino, O. (2022). ESA WorldCover 10 m 2021 v200. https://doi.org/10.5281/zenodo.7254221",
+ "sourceKey": {
+  "files": 2651,
+  "bytes": 124027923380,
+  "digest": "ee73098e05717acb",
+  "modified": "2022-10-26T13:06:19.000Z"
+ },
+ "features": {
+  "total": 453
+ },
+ "tiles": {
+  "count": 84462248,
+  "bytes": 167382501165,
+  "byZoom": {
+   "0": 1,
+   "1": 4,
+   "2": 12,
+   "3": 44,
+   "4": 144,
+   "5": 453,
+   "6": 1448,
+   "7": 4963,
+   "8": 17894,
+   "9": 67100,
+   "10": 258003,
+   "11": 1009728,
+   "12": 3990559,
+   "13": 15863417,
+   "14": 63248478
+  }
+ },
+ "controls": {
+  "files": 2651,
+  "landmarks": [
+   "Brussels",
+   "Lake Victoria",
+   "the Congo forest",
+   "the Greenland ice sheet",
+   "the Sahara"
+  ],
+  "classes": {
+   "10": 260142581,
+   "20": 33481251,
+   "30": 181833396,
+   "40": 57046661,
+   "50": 3358572,
+   "60": 109364675,
+   "70": 95645419,
+   "80": 173898519,
+   "90": 27800035,
+   "95": 480734,
+   "100": 66449636
+  }
+ },
+ "cells": {
+  "count": 453,
+  "largest": 1873122141,
+  "seconds": 137370
+ }
+}
